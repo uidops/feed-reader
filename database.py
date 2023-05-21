@@ -144,4 +144,3 @@ class DataBase:
             max_id -= 1
 
         self.con.commit()
-
