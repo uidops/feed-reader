@@ -260,7 +260,7 @@ class Main:
             description = str(item.findtext('description'))
             digest = self.generate_hash(title, pubdate, link, description)
             self.db.insert_feed(url_id, digest, title, pubdate, link,
-                                description, self.db.get_feed_raed(digest))
+                                description, False)
 
         return True
 

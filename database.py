@@ -81,12 +81,6 @@ class DataBase:
 
         return res.fetchall()[0]
 
-    def get_feed_raed(self, hash: str) -> bool:
-        res = self.cur.execute('SELECT read FROM feeds WHERE '
-                               f"hash='{hash}';")
-        read = res.fetchall()
-        return True if any(read) and read[0] else False
-
     def exists_feed(self, hash: str) -> bool:
         res = self.cur.execute('SELECT id FROM feeds WHERE '
                                f"hash='{hash}';")
