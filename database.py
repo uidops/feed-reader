@@ -53,7 +53,6 @@ class DataBase:
         self.cur.execute('INSERT INTO rss_urls VALUES '
                          f"({id}, '{url}', '{title}');")
 
-        self.con.commit()
         return id
 
     def delete_url(self, id: int) -> None:
@@ -64,7 +63,6 @@ class DataBase:
                          f"id={id};")
         self.delete_feeds(id)
 
-        self.con.commit()
         self.fix_database()
 
     def get_feeds(self, id: int = -1) -> List[Tuple[int, str, str, str, str, str, int]]:
@@ -102,14 +100,10 @@ class DataBase:
                          f"'{pubdate}', '{link}', "
                          f"'{description}', {read});")
 
-        self.con.commit()
-
     def set_read(self, hash: str):
         self.cur.execute('UPDATE feeds SET '
                          f'read=1 WHERE '
                          f"hash='{hash}';")
-
-        self.con.commit()
 
     def delete_feed(self, hash: str) -> bool:
         if not self.exists_feed(hash):
@@ -118,14 +112,12 @@ class DataBase:
         self.cur.execute('DELETE FROM feeds WHERE '
                          f"hash='{hash}';")
 
-        self.con.commit()
         self.fix_database()
 
     def delete_feeds(self, id: int) -> bool:
         self.cur.execute('DELETE FROM feeds WHERE '
                          f"id={id};")
 
-        self.con.commit()
         self.fix_database()
 
     def fix_database(self) -> None:
@@ -143,4 +135,6 @@ class DataBase:
 
             max_id -= 1
 
+    def close(self) -> None:
         self.con.commit()
+        self.con.close()

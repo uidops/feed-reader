@@ -29,7 +29,7 @@ class Main:
         self.show_urls()
 
         self.app.exec()
-        self.db.con.close()
+        self.db.close()
 
     def setup_ui(self):
         self.mainwin.resize(900, 580)
