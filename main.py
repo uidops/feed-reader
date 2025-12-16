@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 
-from PyQt5 import QtCore, QtWidgets, QtGui
-import xml.etree.ElementTree
-import aiohttp
 import asyncio
 import base64
 import datetime
 import hashlib
 import webbrowser
+import xml.etree.ElementTree
+
+import aiohttp
+from PyQt6 import QtCore, QtGui, QtWidgets
 
 from database import DataBase
 from dialog import Dialog
@@ -17,7 +18,7 @@ from qrcode_dialog import QrDialog
 class Main:
     def __init__(self):
         self.db = DataBase()
-        self.app = QtWidgets.QApplication(['rss'])
+        self.app = QtWidgets.QApplication(["rss"])
         self.mainwin = QtWidgets.QMainWindow()
 
         self.read_color = 0x050505
@@ -44,7 +45,7 @@ class Main:
         self.horizontalLayout_4.addLayout(self.verticalLayout)
 
         self.progressBar = QtWidgets.QProgressBar(self.listView)
-        self.progressBar.setOrientation(QtCore.Qt.Vertical)
+        self.progressBar.setOrientation(QtCore.Qt.Orientation.Vertical)
         self.horizontalLayout_4.addWidget(self.progressBar)
 
         self.urlList = QtWidgets.QListWidget(self.listView)
@@ -62,7 +63,7 @@ class Main:
         self.horizontalLayout.addWidget(self.updateAllBtn)
 
         self.progressBar = QtWidgets.QProgressBar(self.listView)
-        self.progressBar.setOrientation(QtCore.Qt.Horizontal)
+        self.progressBar.setOrientation(QtCore.Qt.Orientation.Horizontal)
         self.verticalLayout.addWidget(self.progressBar)
 
         self.verticalLayout.addLayout(self.horizontalLayout)
@@ -78,7 +79,7 @@ class Main:
         self.horizontalLayout_5.addWidget(self.listView)
 
         self.progressBar = QtWidgets.QProgressBar(self.listView)
-        self.progressBar.setOrientation(QtCore.Qt.Horizontal)
+        self.progressBar.setOrientation(QtCore.Qt.Orientation.Horizontal)
         self.verticalLayout_2.addWidget(self.progressBar)
 
         self.textBrowser = QtWidgets.QTextBrowser(self.listView)
@@ -95,10 +96,10 @@ class Main:
         self.menuEdit = QtWidgets.QMenu(self.menuBar)
         self.mainwin.setMenuBar(self.menuBar)
 
-        self.actionNew_RSS_Feed = QtWidgets.QAction(self.mainwin)
+        self.actionNew_RSS_Feed = QtGui.QAction(self.mainwin)
         self.menuEdit.addAction(self.actionNew_RSS_Feed)
 
-        self.actionQuit = QtWidgets.QAction(self.mainwin)
+        self.actionQuit = QtGui.QAction(self.mainwin)
         self.menuEdit.addAction(self.actionQuit)
 
         self.menuBar.addAction(self.menuEdit.menuAction())
@@ -117,16 +118,16 @@ class Main:
         self.feedList.itemDoubleClicked.connect(self.open_browser)
 
     def retranslate_ui(self):
-        self.mainwin.setWindowTitle('RSS Feed Reader')
-        self.feedAddBtn.setText('Add')
-        self.feedDeleteBtn.setText('Delete')
-        self.updateAllBtn.setText('Update all')
-        self.menuEdit.setTitle('Edit')
-        self.actionNew_RSS_Feed.setText('Add')
-        self.actionQuit.setText('Quit')
+        self.mainwin.setWindowTitle("RSS Feed Reader")
+        self.feedAddBtn.setText("Add")
+        self.feedDeleteBtn.setText("Delete")
+        self.updateAllBtn.setText("Update all")
+        self.menuEdit.setTitle("Edit")
+        self.actionNew_RSS_Feed.setText("Add")
+        self.actionQuit.setText("Quit")
 
     def generate_hash(self, *args):
-        return hashlib.md5(''.join(args).encode('utf-8')).hexdigest()
+        return hashlib.md5("".join(args).encode("utf-8")).hexdigest()
 
     def add_rss(self):
         dia = Dialog()
@@ -143,9 +144,10 @@ class Main:
 
         else:
             self.db.delete_feed(
-                    self.db.get_feeds(
-                        self.urlList.currentRow()
-                        )[self.feedList.currentRow()][1])
+                self.db.get_feeds(self.urlList.currentRow())[
+                    self.feedList.currentRow()
+                ][1]
+            )
             self.textBrowser.clear()
             self.show_feeds()
 
@@ -159,34 +161,46 @@ class Main:
     def show_feeds(self):
         self.feedList.clear()
         # feed: (id, hash, title, pubdate, link, description, read)
-        for feed in sorted(self.db.get_feeds(id=self.urlList.currentRow()),
-                           key=lambda x: x[-1]):
+        for feed in sorted(
+            self.db.get_feeds(id=self.urlList.currentRow()), key=lambda x: x[-1]
+        ):
             item = QtWidgets.QListWidgetItem()
             item.setData(1, feed[1])
-            item.setText(base64.b64decode(feed[2]).decode('utf-8'))
+            item.setText(base64.b64decode(feed[2]).decode("utf-8"))
             if feed[-1]:
-                item.setBackground(
-                        QtGui.QColor().fromRgb(self.read_color))
+                item.setBackground(QtGui.QColor().fromRgb(self.read_color))
 
             self.feedList.addItem(item)
 
     def show_feed(self, event):
         feed = self.db.get_feed(self.feedList.currentItem().data(1))
-        if event.button() == QtCore.Qt.RightButton:
-            QrDialog(base64.b64decode(feed[4]).decode('utf-8'))
+        if event.button() == QtCore.Qt.MouseButton.RightButton:
+            QrDialog(base64.b64decode(feed[4]).decode("utf-8"))
             return
 
-        date = base64.b64decode(feed[3]).decode('utf-8')
+        date = base64.b64decode(feed[3]).decode("utf-8")
         try:
             try:
-                date = datetime.datetime.strptime(date, r'%a, %d %B %Y %H:%M:%S %z').astimezone().strftime(r'%Y-%m-%d %H:%M:%S')
+                date = (
+                    datetime.datetime.strptime(
+                        date, r"%a, %d %B %Y %H:%M:%S %z"
+                    )
+                    .astimezone()
+                    .strftime(r"%Y-%m-%d %H:%M:%S")
+                )
                 raise
 
             except ValueError:
                 pass
 
             try:
-                date = datetime.datetime.strptime(date, r'%a, %d %B %Y %H:%M:%S %Z').astimezone().strftime(r'%Y-%m-%d %H:%M:%S')
+                date = (
+                    datetime.datetime.strptime(
+                        date, r"%a, %d %B %Y %H:%M:%S %Z"
+                    )
+                    .astimezone()
+                    .strftime(r"%Y-%m-%d %H:%M:%S")
+                )
                 raise
 
             except ValueError:
@@ -199,27 +213,32 @@ class Main:
             pass
 
         self.textBrowser.clear()
-        self.textBrowser.append('Title: <a href="{0}">{1}</a><br><br>Date: {2}<br><br>{3}<br>'.format(
-                        base64.b64decode(feed[4]).decode('utf-8').replace('"', r'\"'),
-                        base64.b64decode(feed[2]).decode('utf-8'),
-                        date,
-                        base64.b64decode(feed[-2]).decode('utf-8')))
+        self.textBrowser.append(
+            'Title: <a href="{0}">{1}</a><br><br>Date: {2}<br><br>{3}<br>'.format(
+                base64.b64decode(feed[4]).decode("utf-8").replace('"', r"\""),
+                base64.b64decode(feed[2]).decode("utf-8"),
+                date,
+                base64.b64decode(feed[-2]).decode("utf-8"),
+            )
+        )
 
         self.db.set_read(feed[1])
         self.feedList.currentItem().setBackground(
-                QtGui.QColor().fromRgb(self.read_color))
+            QtGui.QColor().fromRgb(self.read_color)
+        )
 
     def resource_handler(self, typ, obj):
-        if typ == QtGui.QTextDocument.ImageResource:
+        if typ == QtGui.QTextDocument.ResourceType.ImageResource:
             pix = QtGui.QPixmap()
             img = asyncio.new_event_loop().run_until_complete(
-                    self.get_page(obj.url()))
+                self.get_page(obj.url())
+            )
             if img is not None:
                 pix.loadFromData(img)
 
-            return QtGui.QPixmap('error.png') if pix.isNull() else pix
+            return QtGui.QPixmap("error.png") if pix.isNull() else pix
 
-        return QtGui.QPixmap('error.png')
+        return QtGui.QPixmap("error.png")
 
     def open_browser(self):
         link = self.db.get_feed(self.feedList.currentItem().data(1))[4]
@@ -229,8 +248,11 @@ class Main:
     async def get_page(url: str):
         async with aiohttp.ClientSession() as session:
             try:
-                async with session.get(url, headers={'User-Agent': 'Mozilla/5.0 (X11; OpenBSD i386)'},
-                                       timeout=aiohttp.ClientTimeout(total=0)) as response:
+                async with session.get(
+                    url,
+                    headers={"User-Agent": "Mozilla/5.0 (X11; OpenBSD i386)"},
+                    timeout=aiohttp.ClientTimeout(total=0),
+                ) as response:
                     if response.status == 200:
                         return await response.read()
 
@@ -242,35 +264,37 @@ class Main:
     async def parse_rss(self, url: str, source: str):
         try:
             tree = xml.etree.ElementTree.ElementTree(
-                    xml.etree.ElementTree.fromstring(source))
+                xml.etree.ElementTree.fromstring(source)
+            )
 
         except xml.etree.ElementTree.ParseError:
             return False
 
         root = tree.getroot()
-        title = root[0].find('title')
+        title = root[0].find("title")
         if title is not None:
             title = title.text
 
         url_id = self.db.insert_url(url, title)
-        for item in root.iterfind('channel/item'):
-            title = str(item.findtext('title'))
-            pubdate = str(item.findtext('pubDate'))
-            link = str(item.findtext('link'))
-            description = str(item.findtext('description'))
+        for item in root.iterfind("channel/item"):
+            title = str(item.findtext("title"))
+            pubdate = str(item.findtext("pubDate"))
+            link = str(item.findtext("link"))
+            description = str(item.findtext("description"))
             digest = self.generate_hash(title, pubdate, link, description)
-            self.db.insert_feed(url_id, digest, title, pubdate, link,
-                                description, False)
+            self.db.insert_feed(
+                url_id, digest, title, pubdate, link, description, False
+            )
 
         return True
 
     def show_error(self, text: str):
         msg = QtWidgets.QMessageBox()
 
-        msg.setIcon(QtWidgets.QMessageBox.Critical)
-        msg.setText('Error')
-        msg.setInformativeText('An error has occurred.\n\n' + text)
-        msg.setWindowTitle('Error')
+        msg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+        msg.setText("Error")
+        msg.setInformativeText("An error has occurred.\n\n" + text)
+        msg.setWindowTitle("Error")
 
         msg.exec()
 
@@ -279,21 +303,21 @@ class Main:
             self.update_url(item[1])
 
     def update_url(self, url: str):
-        page = asyncio.new_event_loop().run_until_complete(
-                self.get_page(url))
+        page = asyncio.new_event_loop().run_until_complete(self.get_page(url))
         if page is None:
-            self.show_error('URL: ' + url)
+            self.show_error("URL: " + url)
             return False
 
         ret = asyncio.new_event_loop().run_until_complete(
-                self.parse_rss(url, page.decode()))
+            self.parse_rss(url, page.decode())
+        )
 
         if not ret:
-            self.show_error('Response data is not XML\n\nURL: ' + url)
+            self.show_error("Response data is not XML\n\nURL: " + url)
             return False
 
         return True
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     Main()

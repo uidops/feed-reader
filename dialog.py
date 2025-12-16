@@ -1,4 +1,4 @@
-from PyQt5 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtWidgets
 
 
 class Dialog:
@@ -23,10 +23,11 @@ class Dialog:
         self.horizontalLayout.addLayout(self.verticalLayout)
 
         self.buttonBox = QtWidgets.QDialogButtonBox(self.dialog)
-        self.buttonBox.setOrientation(QtCore.Qt.Vertical)
+        self.buttonBox.setOrientation(QtCore.Qt.Orientation.Vertical)
         self.buttonBox.setStandardButtons(
-                QtWidgets.QDialogButtonBox.Cancel |
-                QtWidgets.QDialogButtonBox.Ok)
+            QtWidgets.QDialogButtonBox.StandardButton.Cancel
+            | QtWidgets.QDialogButtonBox.StandardButton.Ok
+        )
 
         self.horizontalLayout.addWidget(self.buttonBox)
 
@@ -34,8 +35,8 @@ class Dialog:
         self.buttonBox.rejected.connect(self.reject)
 
     def retranslate_ui(self):
-        self.dialog.setWindowTitle('New RSS Feed')
-        self.linkEdit.setPlaceholderText('http://example.com/feeds.xml')
+        self.dialog.setWindowTitle("New RSS Feed")
+        self.linkEdit.setPlaceholderText("http://example.com/feeds.xml")
 
     def accept(self):
         self.res = True

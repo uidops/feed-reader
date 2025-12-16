@@ -1,6 +1,6 @@
-from typing import List, Tuple
-import sqlcipher3 as sqlite3
 import base64
+import sqlite3 as sqlite3
+from typing import List, Tuple
 
 
 class DataBase:
